@@ -13,17 +13,14 @@ from app.database import get_db
 from app.config import settings
 
 
+# Определение схемы безопасности OAuth2
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token") 
-
 ALGORITHM = "HS256"
 
 # Создание JWT токена
 async def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=30)  
+    expire = datetime.utcnow() + (expires_delta if expires_delta else timedelta(minutes=30))
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt

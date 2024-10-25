@@ -10,8 +10,8 @@ class Category(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True, nullable=False)  
 
-    products = relationship("Product", back_populates="category")
+    products = relationship("Product", back_populates="category")  # Связь с продуктами
+    posts = relationship("Post", back_populates="category")  # связь с постами
 
     def __repr__(self):
-        return f"<Category(id={self.id}, name='{self.name}')>"  
-
+        return f"<Category(id={self.id}, name='{self.name}')>"

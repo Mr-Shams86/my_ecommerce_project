@@ -14,11 +14,12 @@ from .product import Product
 from .user import User
 
 __all__ = [
-    "User",
-    "Post",
-    "Product",
-    "Cart",
-    "Order",
-    "Category",
-    "OrderStatus"
+    "Cart",          # Модель корзины
+    "Category",      # Модель категории
+    "Order",         # Модель заказа
+    "OrderStatus",   # Модель статуса заказа
+    "Post",          # Модель поста
+    "Product",       # Модель продукта
+    "User"           # Модель пользователя
 ]
+

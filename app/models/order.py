@@ -1,4 +1,4 @@
-from sqlalchemy import Column 
+from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import ForeignKey
 from sqlalchemy import Enum
@@ -26,6 +26,8 @@ class Order(Base):
     # Связи
     user = relationship("User", back_populates="orders")  # Связь с пользователем
     items = relationship("OrderItem", back_populates="order")  # Связь с OrderItem
+    status_relation = relationship("OrderStatus", back_populates="orders")  # Связь с OrderStatus (нужно в модели OrderStatus)
+
 
     def __repr__(self):
         return f"Order(id={self.id}, user_id={self.user_id}, status={self.status}, total_price={self.total_price})"
@@ -46,9 +48,3 @@ class OrderItem(Base):
     
     def __repr__(self):
         return f"OrderItem(id={self.id}, order_id={self.order_id}, product_id={self.product_id}, quantity={self.quantity}, price={self.price})"
-
-
-    
-    
-
-

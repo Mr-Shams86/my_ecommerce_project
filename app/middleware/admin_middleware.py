@@ -30,6 +30,6 @@ class AdminMiddleware(BaseHTTPMiddleware):
 
             if not user or not user.is_admin:
                 raise HTTPException(status_code=403, detail="Доступ разрешён только администраторам.")
-            
+
         response = await call_next(request)
         return response

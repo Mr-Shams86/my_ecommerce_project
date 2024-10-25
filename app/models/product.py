@@ -6,6 +6,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
 
+
 class Product(Base):
     __tablename__ = "products"
 
@@ -16,8 +17,9 @@ class Product(Base):
     image_url = Column(String)  
     category_id = Column(Integer, ForeignKey("categories.id"))
 
-    category = relationship("Category", back_populates="products")
+    category = relationship("Category", back_populates="products")  # Связь с категорией
+    cart_items = relationship("CartItem", back_populates="product")  # Связь с элементами корзины
 
     def __repr__(self):
         return (f"Product(id={self.id!r}, name={self.name!r}, "
-                f"price={self.price!r}, image_url={self.image_url!r})")  
+                f"price={self.price!r}, image_url={self.image_url!r})")

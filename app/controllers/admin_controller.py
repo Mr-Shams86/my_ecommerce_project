@@ -23,7 +23,7 @@ async def get_all_orders(db: AsyncSession = Depends(get_async_session), user=Dep
     
     result = await db.execute(select(Order))
     orders = result.scalars().all()
-    return orders
+    return [OrderResponse(id=order.id, user_id=order.user_id, total_price=order.total_price / 100, status=order.status.value) for order in orders]
 
 # Добавление нового статуса заказа
 @router.post("/order-status/", response_model=OrderStatus)
@@ -32,10 +32,5 @@ async def add_order_status(status_data: OrderStatusUpdate, db: AsyncSession = De
     if not user or not user.is_admin:
         raise HTTPException(status_code=403, detail="You do not have access to this resource.")
     
-    # Создаем новый статус заказа
-    new_status = OrderStatus(status=status_data.status)
-    db.add(new_status)
-    await db.commit()  
-    await db.refresh(new_status)
-    
-    return new_status
+    # Возвращаем статус без создания
+    return status_data.status

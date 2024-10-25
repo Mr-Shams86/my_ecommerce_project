@@ -4,10 +4,10 @@ from fastapi import HTTPException
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent  
-MEDIA_DIR = os.path.join(BASE_DIR, "media")  
+MEDIA_DIR = BASE_DIR / "media"  # Используем оператор / для создания пути
 
-# Создаем директорию, если она не существует
-os.makedirs(MEDIA_DIR, exist_ok=True)
+# Создаем директорию для хранения медиафайлов, если она не существует
+MEDIA_DIR.mkdir(parents=True, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "gif"}
 
@@ -20,12 +20,13 @@ async def save_file(file: UploadFile) -> str:
     if not allowed_file(file.filename):
         raise HTTPException(status_code=400, detail="Invalid file type")
 
-    file_path = os.path.join(MEDIA_DIR, file.filename)
+    file_path = MEDIA_DIR / file.filename  # Используем оператор / для создания пути
 
+    # Сохраняем файл на диск
     with open(file_path, "wb") as buffer:
         buffer.write(await file.read())
 
-    return file_path
+    return str(file_path)
 
 def delete_file(file_path: str):
     """Удаляет файл из файловой системы."""
@@ -36,4 +37,4 @@ def delete_file(file_path: str):
 
 def get_file_path(filename: str) -> str:
     """Возвращает полный путь к файлу."""
-    return os.path.join(MEDIA_DIR, filename)
+    return str(MEDIA_DIR / filename)  # Используем оператор / для создания пути

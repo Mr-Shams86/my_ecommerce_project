@@ -13,7 +13,6 @@ from app.schemas.cart import CartResponse
 router = APIRouter()
 
 
-
 @router.post("/", response_model=CartResponse)
 async def add_to_cart(
     product_id: int,
@@ -72,4 +71,4 @@ async def remove_from_cart(
     # Удаляем товар из корзины
     await db.delete(cart_item)
     await db.commit()
-    return {"message": "Item removed successfully"}  
+    return {"message": "Item removed successfully"}

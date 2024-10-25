@@ -6,6 +6,7 @@ from app.schemas.product import ProductCreate
 from app.schemas.product import ProductUpdate
 
 
+# Создание нового продукта
 async def create_product(db: AsyncSession, product: ProductCreate):
     db_product = Product(
         name=product.name,

@@ -27,11 +27,13 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         
 # Настройка логирования
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
-async def init_db():
+async def init_db() -> None:
     try:
         async with engine.begin() as conn:
             # Создание всех таблиц
             await conn.run_sync(Base.metadata.create_all)
+            logger.info("База данных инициализирована успешно.")
     except Exception as e:
         logger.error(f"Ошибка при инициализации базы данных: {e}")

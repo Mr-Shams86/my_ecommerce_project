@@ -1,15 +1,14 @@
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
-from fastapi import status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from typing import List
-from app.database import get_db
+from app.database import get_async_db
 from app.models.product import Product
 from app.schemas.product import ProductCreate
 from app.schemas.product import ProductUpdate
 from app.schemas.product import ProductOut
-from app.services.jwt_service import get_current_user
 from app.services.jwt_service import get_admin_user  
 from app.models.user import User
 
@@ -21,14 +20,18 @@ router = APIRouter(
 
 # Получение всех продуктов
 @router.get("/", response_model=List[ProductOut])
-async def get_products(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    products = db.query(Product).offset(skip).limit(limit).all()
+async def get_products(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_async_db)):
+    query = select(Product).offset(skip).limit(limit)
+    result = await db.execute(query)
+    products = result.scalars().all()
     return products
 
 # Получение продукта по ID
 @router.get("/{product_id}", response_model=ProductOut)
-async def get_product(product_id: int, db: Session = Depends(get_db)):
-    product = db.query(Product).filter(Product.id == product_id).first()
+async def get_product(product_id: int, db: AsyncSession = Depends(get_async_db)):
+    query = select(Product).where(Product.id == product_id)
+    result = await db.execute(query)
+    product = result.scalar_one_or_none()
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
     return product
@@ -37,13 +40,13 @@ async def get_product(product_id: int, db: Session = Depends(get_db)):
 @router.post("/", response_model=ProductOut)
 async def create_product(
     product: ProductCreate, 
-    db: Session = Depends(get_db), 
+    db: AsyncSession = Depends(get_async_db), 
     current_user: User = Depends(get_admin_user)
 ):
     db_product = Product(**product.dict())
     db.add(db_product)
-    db.commit()
-    db.refresh(db_product)
+    await db.commit()
+    await db.refresh(db_product)
     return db_product
 
 # Обновление продукта (только для администраторов)
@@ -51,28 +54,37 @@ async def create_product(
 async def update_product(
     product_id: int, 
     product: ProductUpdate, 
-    db: Session = Depends(get_db), 
+    db: AsyncSession = Depends(get_async_db), 
     current_user: User = Depends(get_admin_user)
 ):
-    db_product = db.query(Product).filter(Product.id == product_id).first()
+    query = select(Product).where(Product.id == product_id)
+    result = await db.execute(query)
+    db_product = result.scalar_one_or_none()
+    
     if db_product is None:
         raise HTTPException(status_code=404, detail="Product not found")
+    
     for key, value in product.dict(exclude_unset=True).items():
         setattr(db_product, key, value)
-    db.commit()
-    db.refresh(db_product)
+    
+    await db.commit()
+    await db.refresh(db_product)
     return db_product
 
 # Удаление продукта (только для администраторов)
 @router.delete("/{product_id}")
 async def delete_product(
     product_id: int, 
-    db: Session = Depends(get_db), 
+    db: AsyncSession = Depends(get_async_db), 
     current_user: User = Depends(get_admin_user)
 ):
-    db_product = db.query(Product).filter(Product.id == product_id).first()
+    query = select(Product).where(Product.id == product_id)
+    result = await db.execute(query)
+    db_product = result.scalar_one_or_none()
+    
     if db_product is None:
         raise HTTPException(status_code=404, detail="Product not found")
-    db.delete(db_product)
-    db.commit()
+    
+    await db.delete(db_product)
+    await db.commit()
     return {"detail": "Product deleted successfully"}

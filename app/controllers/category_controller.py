@@ -24,6 +24,15 @@ async def create_category(
     category: CategoryCreate,  
     db: AsyncSession = Depends(get_async_session)
 ):
+    
+    
+    # Проверка на уникальность категории
+    existing_category = await db.execute(select(Category).where(Category.name == category.name))
+    if existing_category.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="Category with this name already exists")
+    
+    
+    # Создание новой категории
     new_category = Category(name=category.name)
     db.add(new_category)
     await db.commit()
@@ -33,6 +42,17 @@ async def create_category(
 @router.get("/", response_model=list[CategoryResponse])
 async def get_categories(db: AsyncSession = Depends(get_async_session)):
     result = await db.execute(select(Category))
+    categories = result.scalars().all()
+    return categories
+
+
+@router.get("/", response_model=list[CategoryResponse])
+async def get_categories(
+    db: AsyncSession = Depends(get_async_session),
+    limit: int = 10,  # Пагинация, лимит на количество возвращаемых категорий
+    offset: int = 0   # Пагинация, смещение
+):
+    result = await db.execute(select(Category).offset(offset).limit(limit))
     categories = result.scalars().all()
     return categories
 
@@ -47,6 +67,12 @@ async def update_category(
     db: AsyncSession = Depends(get_async_session)
 ):
     category = await get_category_by_id(category_id, db)
+    
+    
+    # Проверка на уникальность имени категории
+    existing_category = await db.execute(select(Category).where(Category.name == category_update.name))
+    if existing_category.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="Category with this name already exists")
 
     # Обновляем поля категории
     category.name = category_update.name
@@ -57,6 +83,8 @@ async def update_category(
 @router.delete("/{category_id}", status_code=204)
 async def delete_category(category_id: int, db: AsyncSession = Depends(get_async_session)):
     category = await get_category_by_id(category_id, db)
-
+    
+    
+    # Удаление категории
     await db.delete(category)
     await db.commit()

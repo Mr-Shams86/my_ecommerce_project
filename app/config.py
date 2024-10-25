@@ -1,3 +1,4 @@
+from pydantic import validator
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -11,7 +12,7 @@ class Settings(BaseSettings):
     test_attempt_time_mins: int = 30  
     ssl: bool = False                 
     current_domain: str = "http://localhost:8000"  
-    secret_key: str                  
+    secret_key: str                  # Обязательно для безопасности
     algorithm: str = "HS256"         
     access_token_expire_minutes: int = 30  
     POSTGRES_PASSWORD: str            
@@ -21,8 +22,13 @@ class Settings(BaseSettings):
         env_file_encoding = "utf-8"
         extra = "allow"
 
+
+    @validator("secret_key")
+    def check_secret_key(cls, v):
+        if not v:
+            raise ValueError("SECRET_KEY не может быть пустым.")
+        return v
+
+
 # Создаём объект настроек
 settings = Settings()
-
-
-
