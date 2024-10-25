@@ -1,12 +1,11 @@
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Depends
-from app.helpers.auth_helper import admin_required 
-from sqlalchemy.ext.asyncio import AsyncSession 
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.helpers.auth_helper import admin_required
 from app.schemas.product import ProductCreate
 from app.schemas.product import ProductUpdate
 from app.schemas.product import ProductOut as ProductSchema
-from app.helpers.auth_helper import admin_required  # Вынесем проверку администратора
 from app.database import get_db
 from app.crud.product_crud import (
     create_product,

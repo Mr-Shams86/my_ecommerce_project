@@ -9,7 +9,7 @@ class UserBase(BaseModel):
     username: str
 
     class Config:
-        orm_mode = True  # Позволяет использовать SQLAlchemy модели
+        from_attributes = True # Позволяет использовать SQLAlchemy модели
 
 # Схема для создания нового пользователя
 class UserCreate(UserBase):
@@ -22,7 +22,7 @@ class UserUpdate(BaseModel):
     username: Optional[str] = None    
 
     class Config:
-        orm_mode = True  # Добавлено для совместимости с SQLAlchemy моделями
+        from_attributes = True  # Добавлено для совместимости с SQLAlchemy моделями
 
 # Схема для чтения данных о пользователе
 class UserRead(UserBase):
@@ -31,9 +31,12 @@ class UserRead(UserBase):
     is_admin: bool
 
     class Config:
-        orm_mode = True  # Добавлено для совместимости с SQLAlchemy моделями
+        from_attributes = True # Добавлено для совместимости с SQLAlchemy моделями
 
 # Схема для логина пользователя
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+    
+class TokenResponse(BaseModel):
+    access_token: str    
