@@ -1,13 +1,15 @@
-from fastapi import Request
-from fastapi import HTTPException
+from fastapi import Request, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from app.services.jwt_service import JWTService
 from app.models.user import User
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        # Исключаем маршруты документации Swagger из проверки авторизации
+        if request.url.path in ["/docs", "/openapi.json"]:
+            return await call_next(request)
+        
         # Получаем заголовок авторизации
         authorization: str = request.headers.get("Authorization")
         if not authorization:

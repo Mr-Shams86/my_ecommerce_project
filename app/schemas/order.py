@@ -14,7 +14,7 @@ class OrderResponse(BaseModel):
     status: str = Field(..., description="Текущий статус заказа")  
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class OrderStatusUpdate(BaseModel):
     status: OrderStatus = Field(..., description="Новый статус заказа")

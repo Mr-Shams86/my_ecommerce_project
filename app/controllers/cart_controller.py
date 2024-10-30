@@ -6,19 +6,18 @@ from sqlalchemy.future import select
 from app.models.cart import CartItem
 from app.models.product import Product
 from app.database import get_async_session
-from app.helpers.auth_helper import get_current_user
-from app.schemas.cart import CartResponse 
+from app.services.jwt_service import JWTService
+from app.schemas.cart import CartResponse
 
 
 router = APIRouter()
-
 
 @router.post("/", response_model=CartResponse)
 async def add_to_cart(
     product_id: int,
     quantity: int = 1,
     db: AsyncSession = Depends(get_async_session),
-    user=Depends(get_current_user)
+    user=Depends(JWTService.get_current_user)
 ):
     # Проверяем, существует ли продукт
     result = await db.execute(select(Product).where(Product.id == product_id))
@@ -48,7 +47,7 @@ async def add_to_cart(
 @router.get("/", response_model=list[CartResponse])
 async def get_cart_items(
     db: AsyncSession = Depends(get_async_session),
-    user=Depends(get_current_user)
+    user=Depends(JWTService.get_current_user)
 ):
     # Получаем все товары из корзины текущего пользователя
     result = await db.execute(select(CartItem).where(CartItem.user_id == user.id))
@@ -59,7 +58,7 @@ async def get_cart_items(
 async def remove_from_cart(
     cart_item_id: int,
     db: AsyncSession = Depends(get_async_session),
-    user=Depends(get_current_user)
+    user=Depends(JWTService.get_current_user)
 ):
     # Находим товар в корзине
     result = await db.execute(select(CartItem).where(CartItem.id == cart_item_id, CartItem.user_id == user.id))

@@ -19,7 +19,7 @@ async def create_user(db: AsyncSession, user: UserCreate) -> User:
     await db.refresh(db_user)
     return db_user
 
-async def get_user(db: AsyncSession, user_id: int) -> User:
+async def get_user_by_id(db: AsyncSession, user_id: int) -> User:
     # Получаем пользователя по ID
     result = await db.execute(select(User).filter(User.id == user_id))
     return result.scalar_one_or_none()

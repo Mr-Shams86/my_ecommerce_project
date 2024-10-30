@@ -1,4 +1,4 @@
-from sqlalchemy import DECIMAL
+from sqlalchemy import Float
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
@@ -13,7 +13,7 @@ class Product(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True, nullable=False)  
     description = Column(String)
-    price = Column(DECIMAL(10, 2), nullable=False)  
+    price = Column(Float, nullable=False)  
     image_url = Column(String)  
     category_id = Column(Integer, ForeignKey("categories.id"))
 

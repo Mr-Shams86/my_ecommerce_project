@@ -87,4 +87,4 @@ async def delete_category(category_id: int, db: AsyncSession = Depends(get_async
     
     # Удаление категории
     await db.delete(category)
-    await db.commit()
+    await db.commit() 

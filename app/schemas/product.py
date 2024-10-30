@@ -11,7 +11,7 @@ class ProductBase(BaseModel):
 
 # Схема для создания продукта
 class ProductCreate(ProductBase):
-    pass  # Унаследует все поля от ProductBase
+    pass
 
 # Схема для обновления продукта
 class ProductUpdate(BaseModel):
@@ -22,8 +22,13 @@ class ProductUpdate(BaseModel):
     category_id: Optional[int] = Field(None, description="Новый ID категории, к которой принадлежит продукт")
 
 # Схема для вывода информации о продукте
-class ProductOut(ProductBase):
+class ProductOut(BaseModel):
     id: int = Field(..., description="ID продукта")
-
+    name: str = Field(..., description="Название продукта")
+    description: Optional[str] = Field(None, description="Описание продукта")
+    price: float = Field(..., description="Цена продукта")
+    image_url: Optional[str] = Field(None, description="URL изображения продукта")
+    category_id: int = Field(..., description="ID категории, к которой принадлежит продукт")
+    
     class Config:
-        orm_mode = True
+        from_attributes=True

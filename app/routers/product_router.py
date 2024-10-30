@@ -9,8 +9,8 @@ from app.models.product import Product
 from app.schemas.product import ProductCreate
 from app.schemas.product import ProductUpdate
 from app.schemas.product import ProductOut
-from app.services.jwt_service import get_admin_user  
-from app.models.user import User
+from app.schemas.user import UserOut
+from app.services.jwt_service import get_admin_user
 
 router = APIRouter(
     prefix="/products",
@@ -41,7 +41,7 @@ async def get_product(product_id: int, db: AsyncSession = Depends(get_async_db))
 async def create_product(
     product: ProductCreate, 
     db: AsyncSession = Depends(get_async_db), 
-    current_user: User = Depends(get_admin_user)
+    current_user: UserOut = Depends(get_admin_user)  # Обновите тип возвращаемого пользователя
 ):
     db_product = Product(**product.dict())
     db.add(db_product)
@@ -55,7 +55,7 @@ async def update_product(
     product_id: int, 
     product: ProductUpdate, 
     db: AsyncSession = Depends(get_async_db), 
-    current_user: User = Depends(get_admin_user)
+    current_user: UserOut = Depends(get_admin_user)  # Обновите тип возвращаемого пользователя
 ):
     query = select(Product).where(Product.id == product_id)
     result = await db.execute(query)
@@ -72,11 +72,11 @@ async def update_product(
     return db_product
 
 # Удаление продукта (только для администраторов)
-@router.delete("/{product_id}")
+@router.delete("/{product_id}", response_model=dict)
 async def delete_product(
     product_id: int, 
     db: AsyncSession = Depends(get_async_db), 
-    current_user: User = Depends(get_admin_user)
+    current_user: UserOut = Depends(get_admin_user)  # Обновите тип возвращаемого пользователя
 ):
     query = select(Product).where(Product.id == product_id)
     result = await db.execute(query)

@@ -6,7 +6,6 @@
 """
 
 from .cart import Cart
-from .category import Category
 from .order import Order
 from .order_status import OrderStatus
 from .post import Post
@@ -15,11 +14,9 @@ from .user import User
 
 __all__ = [
     "Cart",          # Модель корзины
-    "Category",      # Модель категории
     "Order",         # Модель заказа
     "OrderStatus",   # Модель статуса заказа
     "Post",          # Модель поста
     "Product",       # Модель продукта
     "User"           # Модель пользователя
 ]
-
