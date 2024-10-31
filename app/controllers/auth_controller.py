@@ -1,42 +1,51 @@
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
+from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-from app.models.user import User
-from app.helpers.auth_helper import create_user
-from app.helpers.auth_helper import authenticate_user
+from app.crud import user_crud
 from app.services.jwt_service import JWTService 
 from app.database import get_async_session
 from app.schemas.user import UserCreate
 from app.schemas.user import UserLogin
-from app.schemas.user import UserRead
-from app.schemas.user import TokenResponse
+from app.schemas.user import UserOut
 
 
 router = APIRouter()
 
 
-@router.post("/register", response_model=UserRead)
+@router.post("/register", response_model=UserOut)
 async def register(user: UserCreate, db: AsyncSession = Depends(get_async_session)):
-    # Проверка на уникальность пользователя по email
-    existing_user = await db.execute(
-        select(User).filter(User.email == user.email)
-    )
-    if existing_user.scalars().first():
-        raise HTTPException(status_code=400, detail="User with this email already exists.")
+    # Проверка, существует ли пользователь с таким же именем пользователя или email
+    existing_user = await user_crud.get_user_by_username(db, username=user.username)
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Пользователь с таким именем уже существует."
+        )
     
-    # Создание пользователя
-    new_user = await create_user(db, user.username, user.email, user.password)
-    return UserRead.from_orm(new_user)
+    existing_email = await user_crud.get_user_by_email(db, email=user.email)
+    if existing_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Пользователь с таким email уже существует."
+        )
 
-@router.post("/login", response_model=TokenResponse)
+    # Создание пользователя
+    new_user = await user_crud.create_user(db, user)  # Передаем объект UserCreate
+    return UserOut.from_orm(new_user)  # Приведение к Pydantic-схеме
+
+@router.post("/login", response_model=str)  # Возвращаем строку с токеном
 async def login(user: UserLogin, db: AsyncSession = Depends(get_async_session)):
     # Аутентификация пользователя
-    authenticated_user = await authenticate_user(db, user.email, user.password)
+    authenticated_user = await user_crud.authenticate_user(db, user.username, user.password)
     if not authenticated_user:
-        raise HTTPException(status_code=400, detail="Invalid credentials")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Неверное имя пользователя или пароль.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
-    # Создание токена доступа с использованием метода класса
-    access_token = await JWTService.create_access_token(data={"sub": str(authenticated_user.id)})
-    return TokenResponse(access_token=access_token)  # Возвращаем схему
+    # Создание и возвращение токена
+    access_token = await JWTService.create_access_token(data={"sub": authenticated_user.id})
+    return access_token

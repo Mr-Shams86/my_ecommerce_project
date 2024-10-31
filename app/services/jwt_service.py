@@ -52,10 +52,34 @@ class JWTService:
         return UserOut.from_orm(user)  # Приведение к Pydantic-схеме
 
     @staticmethod
-    async def get_admin_user(current_user: UserOut = Depends(get_current_user)):
-        if not current_user.is_admin:
+    async def verify_user(
+        token: str,
+        db: AsyncSession,
+        require_admin: bool = False
+    ) -> UserOut:
+        credentials_exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Не удалось проверить учетные данные.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        try:
+            # Расшифровка токена
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+            user_id: str = payload.get("sub")
+            if user_id is None:
+                raise credentials_exception
+        except JWTError:
+            raise credentials_exception
+
+        # Поиск пользователя в базе данных
+        user = await user_crud.get_user_by_id(db, user_id=user_id)
+        if user is None:
+            raise credentials_exception
+
+        if require_admin and not user.is_admin:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Доступ запрещен. Только администраторы могут выполнять это действие.",
             )
-        return current_user
+        
+        return UserOut.from_orm(user)  # Приведение к Pydantic-схеме
