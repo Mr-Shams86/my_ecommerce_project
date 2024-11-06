@@ -7,30 +7,30 @@ from app.database import Base
 import enum
 
 # Определение статусов заказа
-class OrderStatus(enum.Enum):
+class OrderStatusEnum(enum.Enum):
     pending = "pending"      # Заказ оформлен, но не подтверждён
-    confirmed = "confirmed"   # Заказ подтверждён
-    shipped = "shipped"       # Заказ отправлен
-    delivered = "delivered"   # Заказ доставлен
-    cancelled = "cancelled"   # Заказ отменён
+    confirmed = "confirmed"  # Заказ подтверждён
+    shipped = "shipped"      # Заказ отправлен
+    delivered = "delivered"  # Заказ доставлен
+    cancelled = "cancelled"  # Заказ отменён
 
 # Модель для заказа
 class Order(Base):
     __tablename__ = "orders"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))  # Внешний ключ на пользователя
-    total_price = Column(Integer, nullable=False)  # Итоговая сумма заказа в копейках
-    status = Column(Enum(OrderStatus), default=OrderStatus.pending)  # Статус заказа
+    user_id = Column(Integer, ForeignKey("users.id"))
+    total_price = Column(Integer, nullable=False)
+    status_id = Column(Integer, ForeignKey("order_statuses.id"))
+    status = Column(Enum(OrderStatusEnum), default=OrderStatusEnum.pending)
     
     # Связи
-    user = relationship("User", back_populates="orders")  # Связь с пользователем
-    items = relationship("OrderItem", back_populates="order")  # Связь с OrderItem
-    status_relation = relationship("OrderStatus", back_populates="orders")  # Связь с OrderStatus (нужно в модели OrderStatus)
-
+    user = relationship("User", back_populates="orders")
+    items = relationship("OrderItem", back_populates="order")
+    status_relation = relationship("OrderStatus", back_populates="orders")  # Связь с OrderStatus через внешний ключ
 
     def __repr__(self):
-        return f"Order(id={self.id}, user_id={self.user_id}, status={self.status}, total_price={self.total_price})"
+        return f"Order(id={self.id}, user_id={self.user_id}, status_id={self.status_id}, total_price={self.total_price})"
 
 # Модель для элемента заказа (OrderItem)    
 class OrderItem(Base):

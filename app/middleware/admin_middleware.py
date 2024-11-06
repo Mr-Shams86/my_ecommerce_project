@@ -13,8 +13,8 @@ class AdminMiddleware(BaseHTTPMiddleware):
         self.db = db
 
     async def dispatch(self, request: Request, call_next):
-        # Исключаем маршруты документации Swagger
-        if request.url.path in ["/docs", "/openapi.json"]:
+        # Исключаем маршруты, которые не требуют проверки прав администратора
+        if request.url.path in ["/docs", "/openapi.json", "/register"]:
             return await call_next(request)
 
         # Получаем заголовок авторизации

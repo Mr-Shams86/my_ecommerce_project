@@ -11,9 +11,15 @@ from app.schemas.user import UserUpdate
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 async def create_user(db: AsyncSession, user: UserCreate) -> User:
-    # Создаем нового пользователя и хэшируем его пароль
-    db_user = User(**user.dict())
-    db_user.hashed_password = pwd_context.hash(user.password)  
+    # Создаем пользователя с явным указанием полей
+    db_user = User(
+        username=user.username,
+        email=user.email,
+        is_active=user.is_active,
+        is_admin=user.is_admin
+        
+    )
+    db_user.set_password(user.password)  # Устанавливаем хэшированный пароль
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)

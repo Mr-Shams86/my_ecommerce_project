@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.crud.order_crud import OrderCRUD
 from app.models.order import OrderItem
-from app.models.order import OrderStatus
 from app.models.cart import CartItem
+from app.models.order import OrderStatusEnum
 from app.database import get_async_session
 from app.services.jwt_service import JWTService  # Импорт JWTService вместо get_current_user
 from app.helpers.auth_helper import admin_required
@@ -30,7 +30,8 @@ async def create_order(db: AsyncSession = Depends(get_async_session), user = Dep
     total_price = sum(item.product.price * item.quantity for item in cart_items)
 
     # Создание нового заказа через OrderCRUD
-    new_order = await OrderCRUD.create_order(db, user.id, total_price, OrderStatus.pending)
+    new_order = await OrderCRUD.create_order(db, user.id, total_price, OrderStatusEnum.pending)
+
 
     # Создаем записи для заказанных товаров и очищаем корзину
     async with db.begin():

@@ -35,7 +35,7 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_async_sessio
     new_user = await user_crud.create_user(db, user)  # Передаем объект UserCreate
     return UserOut.from_orm(new_user)  # Приведение к Pydantic-схеме
 
-@router.post("/login", response_model=str)  # Возвращаем строку с токеном
+@router.post("/login", response_model=str, summary="User Login", description="Authentication user and return JWT token")  # Возвращаем строку с токеном
 async def login(user: UserLogin, db: AsyncSession = Depends(get_async_session)):
     # Аутентификация пользователя
     authenticated_user = await user_crud.authenticate_user(db, user.username, user.password)

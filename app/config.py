@@ -1,5 +1,6 @@
-from pydantic import validator
 from pydantic_settings import BaseSettings
+from pydantic import validator
+
 
 class Settings(BaseSettings):
     database_async_url: str  
@@ -12,7 +13,7 @@ class Settings(BaseSettings):
     test_attempt_time_mins: int = 30  
     ssl: bool = False                 
     current_domain: str = "http://localhost:8000"  
-    secret_key: str                  # Обязательно для безопасности
+    secret_key: str
     algorithm: str = "HS256"         
     access_token_expire_minutes: int = 30  
     POSTGRES_PASSWORD: str            
@@ -20,7 +21,6 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"  
         env_file_encoding = "utf-8"
-        extra = "allow"
 
 
     @validator("secret_key")

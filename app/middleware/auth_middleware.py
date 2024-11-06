@@ -13,11 +13,12 @@ class AuthMiddleware(BaseHTTPMiddleware):
         self.db = db
 
     async def dispatch(self, request: Request, call_next):
-        # Исключаем маршруты документации Swagger
-        if request.url.path in ["/docs", "/openapi.json"]:
+        # Исключаем маршруты, которые не требуют аутентификации
+        public_paths = ["/docs", "/openapi.json", "/register"]
+        if request.url.path in public_paths:
             return await call_next(request)
 
-        # Получаем заголовок авторизации
+        # Проверяем наличие заголовка Authorization
         authorization: str = request.headers.get("Authorization")
         if not authorization:
             raise HTTPException(status_code=401, detail="Authentication required.")

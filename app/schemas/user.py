@@ -12,6 +12,8 @@ class UserBase(BaseModel):
 # Схема для создания нового пользователя
 class UserCreate(UserBase):
     password: str = Field(..., description="Пароль пользователя")
+    is_active: bool = Field(default=True, description="Активен ли пользователь")
+    is_admin: bool = Field(default=False, description="Является ли пользователь администратором")
 
 # Схема для обновления информации о пользователе
 class UserUpdate(BaseModel):
@@ -35,7 +37,7 @@ class TokenResponse(BaseModel):
     access_token: str
     
     
-# Схема для возврата данных о пользователе (можно использовать вместо UserRead)
+# Схема для возврата данных о пользователе 
 class UserOut(UserBase):
     id: int
     is_active: bool

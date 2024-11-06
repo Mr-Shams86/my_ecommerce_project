@@ -1,10 +1,5 @@
-from sqlalchemy import Column
-from sqlalchemy import Integer
-from sqlalchemy import String
 from pydantic import BaseModel
 from pydantic import Field
-from app.database import Base
-
 
 
 class CategoryBase(BaseModel):

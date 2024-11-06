@@ -1,6 +1,15 @@
 from pydantic import BaseModel
 from pydantic import Field
-from app.models.order import OrderStatus
+from enum import Enum
+from app.models.order import OrderStatusEnum  # Импорт перечисления Enum
+
+
+class OrderStatusEnum(Enum):
+    pending = "pending"
+    confirmed = "confirmed"
+    shipped = "shipped"
+    delivered = "delivered"
+    cancelled = "cancelled"
 
 class OrderCreate(BaseModel):
     user_id: int = Field(..., description="ID пользователя, создающего заказ")
@@ -17,4 +26,7 @@ class OrderResponse(BaseModel):
         from_attributes = True
 
 class OrderStatusUpdate(BaseModel):
-    status: OrderStatus = Field(..., description="Новый статус заказа")
+    status: OrderStatusEnum = Field(..., description="Новый статус заказа")
+
+    class Config:
+        arbitrary_types_allowed = True

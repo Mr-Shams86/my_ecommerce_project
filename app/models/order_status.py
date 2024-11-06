@@ -14,5 +14,4 @@ class OrderStatus(Base):
     orders = relationship("Order", back_populates="status_relation")
 
     def __repr__(self):
-        return f"<OrderStatus(id={self.id}, name='{self.name}')>"  
-
+        return f"<OrderStatus(id={self.id}, name='{self.name}')>"

@@ -19,6 +19,7 @@ class Product(Base):
 
     category = relationship("Category", back_populates="products")  # Связь с категорией
     cart_items = relationship("CartItem", back_populates="product")  # Связь с элементами корзины
+    order_items = relationship("OrderItem", back_populates="product")  # Связь с элементами заказа
 
     def __repr__(self):
         return (f"Product(id={self.id!r}, name={self.name!r}, "

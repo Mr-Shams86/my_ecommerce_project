@@ -18,7 +18,6 @@ class Post(Base):
     user = relationship("User", back_populates="posts")  # Обратная связь с моделью User
     category_id = Column(Integer, ForeignKey("categories.id", ondelete="SET NULL"))  # Связь с категорией
     category = relationship("Category", back_populates="posts")  # Обратная связь с моделью Category
-    comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")  # Связь с комментариями
 
     def __repr__(self):
         return (f"Post(id={self.id!r}, title={self.title!r}, content={self.content[:50]!r}, "
