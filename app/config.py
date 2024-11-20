@@ -1,6 +1,8 @@
 from pydantic_settings import BaseSettings
 from pydantic import validator
+import logging
 
+logger = logging.getLogger(__name__)
 
 class Settings(BaseSettings):
     database_async_url: str  
@@ -24,9 +26,11 @@ class Settings(BaseSettings):
 
 
     @validator("secret_key")
-    def check_secret_key(cls, v):
+    def validate_secret_key(cls, v):
         if not v:
-            raise ValueError("SECRET_KEY не может быть пустым.")
+            logger.error("SECRET_KEY cannot be empty.")
+            raise ValueError("SECRET_KEY cannot be empty.")
+        logger.info("SECRET_KEY validated successfully.")
         return v
 
 

@@ -33,5 +33,3 @@ class User(Base):
     def verify_password(self, password: str) -> bool:
         """Проверяет правильность пароля."""
         return pwd_context.verify(password, self.hashed_password)
-    
-    

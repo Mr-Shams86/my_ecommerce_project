@@ -10,9 +10,13 @@ from app.middleware.auth_middleware import AuthMiddleware
 app = FastAPI(title="Ecommerce API", description="API для электронной коммерции", version="1.0.0")
 
 
-# Подключаем middleware в правильном порядке
+# Подключаем AuthMiddleware ко всем маршрутам
 app.add_middleware(AuthMiddleware)
-app.add_middleware(AdminMiddleware)
+
+# Админское middleware только для административных маршрутов
+admin_routers = [product_router, cart_router, order_router]
+for router in admin_routers:
+    app.add_middleware(AdminMiddleware)
 
 # Подключаем маршрутизаторы с тегами для документации
 app.include_router(auth_router, tags=["Authentication"])

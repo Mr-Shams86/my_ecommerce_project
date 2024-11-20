@@ -29,12 +29,18 @@ class UserRead(UserBase):
 
 # Схема для логина пользователя
 class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
+    username: Optional[str] = None  # Необязательное поле
+    email: Optional[EmailStr] = None  # Необязательное поле
+    password: str  # Обязательное поле
+    
+    def validate_credentials(self):
+        if not self.username and not self.email:
+            raise ValueError("Either 'username' or 'email' must be provided.")
 
 # Схема для ответа с токеном
 class TokenResponse(BaseModel):
     access_token: str
+    token_type: str = "bearer"
     
     
 # Схема для возврата данных о пользователе 
